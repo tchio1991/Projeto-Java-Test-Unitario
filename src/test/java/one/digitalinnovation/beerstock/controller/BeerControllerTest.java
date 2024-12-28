@@ -3,7 +3,6 @@ package one.digitalinnovation.beerstock.controller;
 import one.digitalinnovation.beerstock.builder.BeerDTOBuilder;
 import one.digitalinnovation.beerstock.dto.BeerDTO;
 import one.digitalinnovation.beerstock.dto.QuantityDTO;
-import one.digitalinnovation.beerstock.exception.BeerAlreadyRegisteredException;
 import one.digitalinnovation.beerstock.exception.BeerNotFoundException;
 import one.digitalinnovation.beerstock.exception.BeerStockExceededException;
 import one.digitalinnovation.beerstock.service.BeerService;
@@ -22,6 +21,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import java.util.Collections;
 
+import static java.util.Collections.EMPTY_LIST;
 import static one.digitalinnovation.beerstock.utils.JsonConvertionUtils.asJsonString;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
@@ -36,8 +36,6 @@ public class BeerControllerTest {
     private static final long VALID_BEER_ID = 1L;
     private static final long INVALID_BEER_ID = 2l;
     private static final String BEER_API_SUBPATH_INCREMENT_URL = "/increment";
-    private static final String BEER_API_SUBPATH_DECREMENT_URL = "/decrement";
-
     private MockMvc mockMvc;
 
     @Mock
@@ -133,13 +131,11 @@ public class BeerControllerTest {
                 .andExpect(jsonPath("$[0].type", is(beerDTO.getType().toString())));
     }
 
-    @Test
+    @SuppressWarnings("unchecked")
+@Test
     void quandoGETListaDeCervejasForChamadaERetornarUmaListaVaziaRetorneOkStatus() throws Exception {
-        //given
-        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
-
         //when
-        when(beerService.listAll()).thenReturn(Collections.EMPTY_LIST);
+        when(beerService.listAll()).thenReturn(EMPTY_LIST);
 
         //then
         mockMvc.perform(get(BEER_API_URL_PATH)
@@ -163,9 +159,6 @@ public class BeerControllerTest {
 
     @Test
     void quandoDELETEForChamadoComUmIDInvalidoRetorneNotFoundStatus() throws Exception {
-        //given
-        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
-
         //when
         doThrow(BeerNotFoundException.class).when(beerService).deleteById(INVALID_BEER_ID);
 
